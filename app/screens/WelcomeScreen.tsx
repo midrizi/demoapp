@@ -1,17 +1,23 @@
-import { observer } from "mobx-react-lite"
 import React, {
-  useLayoutEffect, // @demo remove-current-line
+  useEffect,
+  useLayoutEffect,
+  useState, // @demo remove-current-line
 } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
+
+import * as Updates from "expo-updates"
+import { observer } from "mobx-react-lite"
 import { SafeAreaView } from "react-native-safe-area-context"
+
 import {
-  Button, // @demo remove-current-line
   Header, // @demo remove-current-line
   Text,
 } from "../components"
 import { isRTL } from "../i18n"
-import { useStores } from "../models" // @demo remove-current-line
-import { AppStackScreenProps } from "../navigators" // @demo remove-current-line
+import { useStores } from "../models"
+// @demo remove-current-line
+import { AppStackScreenProps } from "../navigators"
+// @demo remove-current-line
 import { colors, spacing } from "../theme"
 
 const welcomeLogo = require("../../assets/images/logo.png")
@@ -28,10 +34,6 @@ export const WelcomeScreen = observer(function WelcomeScreen(
     authenticationStore: { setAuthToken },
   } = useStores()
 
-  function goNext() {
-    navigation.navigate("Demo", { screen: "DemoShowroom" })
-  }
-
   function logout() {
     setAuthToken(undefined)
   }
@@ -43,6 +45,28 @@ export const WelcomeScreen = observer(function WelcomeScreen(
     })
   }, [])
   // @demo remove-block-end
+
+  const [updateAvailable, setUpdateAvailable] = useState(false)
+  const [updateManifest, setUpdateManifest] = useState({})
+
+  useEffect(() => {
+    const timer = setInterval(async () => {
+      // Check for updates only if app is in background.
+      // Checking for updates doesn't work in DEV mode, only works in production.
+      if (__DEV__) return
+
+      const update = await Updates.checkForUpdateAsync()
+      console.log({ update })
+      if (update.isAvailable) {
+        setUpdateAvailable(true)
+        setUpdateManifest(update.manifest)
+        await Updates.fetchUpdateAsync()
+        await Updates.reloadAsync()
+      }
+    }, 3000)
+
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <View style={$container}>
@@ -60,15 +84,10 @@ export const WelcomeScreen = observer(function WelcomeScreen(
 
       <SafeAreaView style={$bottomContainer} edges={["bottom"]}>
         <View style={$bottomContentContainer}>
-          <Text tx="welcomeScreen.postscript" size="md" />
-          {/* @demo remove-block-start */}
-          <Button
-            testID="next-screen-button"
-            preset="reversed"
-            tx="welcomeScreen.letsGo"
-            onPress={goNext}
-          />
-          {/* @demo remove-block-end */}
+          {/* <Text tx="welcomeScreen.postscript" size="md" /> */}
+          <Text>{`Update id: ${Updates.updateId}`}</Text>
+          <Text>{`Update Available: ${updateAvailable}`}</Text>
+          <Text>{`Manifest: ${JSON.stringify(updateManifest)}`}</Text>
         </View>
       </SafeAreaView>
     </View>

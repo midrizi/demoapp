@@ -13,7 +13,8 @@
       "backgroundColor": "#191015"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/eedd384b-a672-4275-9d7c-ce589099f8a1"
     },
     "jsEngine": "hermes",
     "assetBundlePatterns": ["**/*"],
@@ -48,6 +49,12 @@
         "resizeMode": "contain",
         "backgroundColor": "#191015"
       }
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "eedd384b-a672-4275-9d7c-ce589099f8a1"
+      }
+    },
+    "runtimeVersion": "1.0.0"
   }
 }

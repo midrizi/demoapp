@@ -17,6 +17,10 @@ import android.content.res.Configuration;
 import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
 
+import expo.modules.kotlin.types.AnyType;
+import expo.modules.updates.UpdatesController;
+import javax.annotation.Nullable;
+
 public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost =
@@ -38,6 +42,24 @@ public class MainApplication extends Application implements ReactApplication {
         @Override
         protected String getJSMainModuleName() {
           return "index";
+        }
+
+        @Override
+        protected @Nullable String getJSBundleFile() {
+          if (BuildConfig.DEBUG) {
+            return super.getJSBundleFile();
+          } else {
+            return UpdatesController.getInstance().getLaunchAssetFile();
+          }
+        }
+
+        @Override
+        protected @Nullable String getBundleAssetName() {
+          if (BuildConfig.DEBUG) {
+            return super.getBundleAssetName();
+          } else {
+            return UpdatesController.getInstance().getBundleAssetName();
+          }
         }
       });
 
@@ -61,6 +83,10 @@ public class MainApplication extends Application implements ReactApplication {
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     new ReactNativeHostWrapper(this, new MainApplicationReactNativeHost(this));
+
+    if (!BuildConfig.DEBUG) {
+      UpdatesController.initialize(this);
+    }
   }
 
   /**
@@ -70,17 +96,15 @@ public class MainApplication extends Application implements ReactApplication {
    * @param context
    * @param reactInstanceManager
    */
-  private static void initializeFlipper(
-      Context context, ReactInstanceManager reactInstanceManager) {
+  private static void initializeFlipper(Context context, ReactInstanceManager reactInstanceManager) {
     if (BuildConfig.DEBUG) {
       try {
         /*
-         We use reflection here to pick up the class that initializes Flipper,
-        since Flipper library is not available in release mode
-        */
+         * We use reflection here to pick up the class that initializes Flipper, since Flipper
+         * library is not available in release mode
+         */
         Class<?> aClass = Class.forName("com.demoapp.ReactNativeFlipper");
-        aClass
-            .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
+        aClass.getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
             .invoke(null, context, reactInstanceManager);
       } catch (ClassNotFoundException e) {
         e.printStackTrace();

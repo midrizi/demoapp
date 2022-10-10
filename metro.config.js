@@ -19,6 +19,9 @@ if (isExpo) {
    * https://github.com/infinitered/ignite/issues/1904#issuecomment-1054535068
    */
   metroConfig = getDefaultConfig(__dirname)
+  metroconfig.transformer = {
+    assetPlugins: ["expo-asset/tools/hashAssetFiles"],
+  }
 } else {
   /**
    * Vanilla metro config - we're using a custom metro config because we want to support symlinks
@@ -45,6 +48,9 @@ if (isExpo) {
          */
         resolveRequest: MetroSymlinksResolver(),
         assetExts: [...defaultConfig.resolver.assetExts, "bin"],
+      },
+      transformer: {
+        assetPlugins: ["expo-asset/tools/hashAssetFiles"],
       },
     })
   })()
